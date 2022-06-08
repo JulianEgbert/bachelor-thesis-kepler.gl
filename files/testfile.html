@@ -1,0 +1,229 @@
+
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8"/>
+        <title>Kepler.gl embedded map</title>
+
+        <!--Uber Font-->
+        <link rel="stylesheet" href="https://d1a3f4spazzrp4.cloudfront.net/kepler.gl/uber-fonts/4.0.0/superfine.css">
+
+        <!--MapBox css-->
+        <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v1.1.1/mapbox-gl.css" rel="stylesheet">
+
+        <!-— facebook open graph tags -->
+        <meta property="og:url" content="http://kepler.gl/" />
+        <meta property="og:title" content="Large-scale WebGL-powered Geospatial Data Visualization Tool" />
+        <meta property="og:description" content="Kepler.gl is a powerful web-based geospatial data analysis tool. Built on a high performance rendering engine and designed for large-scale data sets." />
+        <meta property="og:site_name" content="kepler.gl" />
+        <meta property="og:image" content="https://d1a3f4spazzrp4.cloudfront.net/kepler.gl/kepler.gl-meta-tag.png" />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="800" />
+        <meta property="og:image:height" content="800" />
+
+        <!-— twitter card tags -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:site" content="@uber">
+        <meta name="twitter:creator" content="@uber">
+        <meta name="twitter:title" content="Large-scale WebGL-powered Geospatial Data Visualization Tool">
+        <meta name="twitter:description" content="Kepler.gl is a powerful web-based geospatial data analysis tool. Built on a high performance rendering engine and designed for large-scale data sets.">
+        <meta name="twitter:image" content="https://d1a3f4spazzrp4.cloudfront.net/kepler.gl/kepler.gl-meta-tag.png" />
+
+        <!-- Load React/Redux -->
+        <script src="https://unpkg.com/react@16.8.4/umd/react.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@16.8.4/umd/react-dom.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/redux@3.7.2/dist/redux.js" crossorigin></script>
+        <script src="https://unpkg.com/react-redux@7.1.3/dist/react-redux.min.js" crossorigin></script>
+        <script src="https://unpkg.com/styled-components@4.1.3/dist/styled-components.min.js" crossorigin></script>
+
+        <!-- Load Kepler.gl -->
+        <script src="https://unpkg.com/kepler.gl@2.5.5/umd/keplergl.min.js" crossorigin></script>
+
+        <style type="text/css">
+          body {margin: 0; padding: 0; overflow: hidden;}
+        </style>
+
+        <!--MapBox token-->
+        <script>
+          /**
+           * Provide your MapBox Token
+           **/
+          const MAPBOX_TOKEN = 'pk.eyJ1IjoidWNmLW1hcGJveCIsImEiOiJjbDBiYzlveHgwdnF0M2NtZzUzZWZuNWZ4In0.l9J8ptz3MKwaU9I4PtCcig';
+          const WARNING_MESSAGE = 'Please Provide a Mapbox Token in order to use Kepler.gl. Edit this file and fill out MAPBOX_TOKEN with your access key';
+        </script>
+
+        <!-- GA: Delete this as you wish, However to pat ourselves on the back, we only track anonymous pageview to understand how many people are using kepler.gl. -->
+        <script>
+          (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+          ga('create', 'UA-64694404-19', {
+            'storage': 'none',
+            'clientId': localStorage.getItem('ga:clientId')
+          });
+          ga(function(tracker) {
+              localStorage.setItem('ga:clientId', tracker.get('clientId'));
+          });
+          ga('set', 'checkProtocolTask', null); // Disable file protocol checking.
+          ga('set', 'checkStorageTask', null); // Disable cookie storage checking.
+          ga('set', 'historyImportTask', null); // Disable history checking (requires reading from cookies).
+          ga('set', 'page', 'keplergl-html');
+          ga('send', 'pageview');
+        </script>
+      </head>
+      <body>
+        <!-- We will put our React component inside this div. -->
+        <div id="app">
+          <!-- Kepler.gl map will be placed here-->
+        </div>
+
+        <!-- Load our React component. -->
+        <script>
+          /* Validate Mapbox Token */
+          if ((MAPBOX_TOKEN || '') === '' || MAPBOX_TOKEN === 'PROVIDE_MAPBOX_TOKEN') {
+            alert(WARNING_MESSAGE);
+          }
+
+          /** STORE **/
+          const reducers = (function createReducers(redux, keplerGl) {
+            return redux.combineReducers({
+              // mount keplerGl reducer
+              keplerGl: keplerGl.keplerGlReducer.initialState({
+                uiState: {
+                  readOnly: false,
+                  currentModal: null
+                }
+              })
+            });
+          }(Redux, KeplerGl));
+
+          const middleWares = (function createMiddlewares(keplerGl) {
+            return keplerGl.enhanceReduxMiddleware([
+              // Add other middlewares here
+            ]);
+          }(KeplerGl));
+
+          const enhancers = (function craeteEnhancers(redux, middles) {
+            return redux.applyMiddleware(...middles);
+          }(Redux, middleWares));
+
+          const store = (function createStore(redux, enhancers) {
+            const initialState = {};
+
+            return redux.createStore(
+              reducers,
+              initialState,
+              redux.compose(enhancers)
+            );
+          }(Redux, enhancers));
+          /** END STORE **/
+
+          /** COMPONENTS **/
+          var KeplerElement = (function makeKeplerElement(react, keplerGl, mapboxToken) {
+            var LogoSvg = function LogoSvg() {
+              return react.createElement(
+                "div",
+                { className: "logo-container", style: {position: 'fixed', zIndex: 10000, padding: '4px'} },
+                  react.createElement(
+                    "svg",
+                    {
+                      className: "kepler_gl__logo",
+                      width: "107px",
+                      height: "21px",
+                      viewBox: "0 0 124 24"
+                    },
+                    react.createElement(
+                      "g",
+                      { transform: "translate(13.500000, 13.500000) rotate(45.000000) translate(-13.500000, -13.500000) translate(4.000000, 4.000000)" },
+                      react.createElement("rect", { x: "0", y: "6", transform: "matrix(2.535181e-06 1 -1 2.535181e-06 18.1107 6.0369)", fill: "#535C6C", width: "12.1", height: "12.1" }),
+                      react.createElement("rect", { x: "6", y: "0", transform: "matrix(2.535182e-06 1 -1 2.535182e-06 18.1107 -6.0369)", fill:"#1FBAD6", width: "12.1", height: "12.1" })
+                    ),
+                    react.createElement(
+                      "g",
+                      {},
+                      react.createElement("path", { fill:"#1FBAD6", d: "M39,8.7h2.2l-2.8,4.2l2.9,5.1H39l-2.4-4.2h-1.3V18h-2V5l2-0.1v7.3h1.3L39,8.7z" }),
+                      react.createElement("path", { fill:"#1FBAD6", d: "M42.4,13.3c0-1.5,0.4-2.7,1.1-3.5s1.8-1.2,3.1-1.2c1.3,0,2.2,0.4,2.8,1.1c0.6,0.7,0.9,1.8,0.9,3.3 c0,0.4,0,0.8,0,1.1h-5.8c0,1.6,0.8,2.4,2.4,2.4c1,0,2-0.2,2.9-0.6l0.2,1.7c-0.4,0.2-0.9,0.4-1.4,0.5s-1.1,0.2-1.7,0.2 c-1.5,0-2.6-0.4-3.3-1.2C42.8,16.1,42.4,14.9,42.4,13.3z M46.6,10.1c-0.7,0-1.2,0.2-1.5,0.5c-0.4,0.4-0.6,0.9-0.6,1.7h4 c0-0.8-0.2-1.4-0.5-1.7S47.2,10.1,46.6,10.1z" }),
+                      react.createElement("path", { fill:"#1FBAD6", d: "M57.1,18.2c-1,0-1.8-0.3-2.3-0.9l0,0l0,1.3v2.5h-2V8.7h1.5l0.3,0.9h0c0.3-0.3,0.7-0.6,1.2-0.7 c0.4-0.2,0.9-0.3,1.4-0.3c1.2,0,2.1,0.4,2.7,1.1c0.6,0.7,0.9,2,0.9,3.7c0,1.6-0.3,2.8-1,3.7C59.2,17.8,58.3,18.2,57.1,18.2z M56.7,10.3c-0.4,0-0.8,0.1-1.1,0.2c-0.3,0.2-0.6,0.4-0.8,0.7v4.3c0.2,0.3,0.4,0.5,0.7,0.7c0.3,0.2,0.7,0.3,1.1,0.3 c0.7,0,1.2-0.2,1.6-0.7c0.4-0.5,0.5-1.3,0.5-2.5c0-0.8-0.1-1.4-0.2-1.8s-0.4-0.7-0.7-0.9C57.6,10.4,57.2,10.3,56.7,10.3z" }),
+                      react.createElement("path", { fill:"#1FBAD6", d: "M63.2,16V5l2-0.1v10.8c0,0.3,0.1,0.5,0.2,0.6c0.1,0.1,0.3,0.2,0.6,0.2c0.3,0,0.6,0,0.9-0.1V18 c-0.4,0.1-1,0.2-1.6,0.2c-0.8,0-1.3-0.2-1.7-0.5S63.2,16.8,63.2,16z" }),
+                      react.createElement("path", { fill:"#1FBAD6", d: "M68.2,13.3c0-1.5,0.4-2.7,1.1-3.5c0.7-0.8,1.8-1.2,3.1-1.2c1.3,0,2.2,0.4,2.8,1.1c0.6,0.7,0.9,1.8,0.9,3.3 c0,0.4,0,0.8,0,1.1h-5.8c0,1.6,0.8,2.4,2.4,2.4c1,0,2-0.2,2.9-0.6l0.2,1.7c-0.4,0.2-0.9,0.4-1.4,0.5s-1.1,0.2-1.7,0.2 c-1.5,0-2.6-0.4-3.3-1.2C68.6,16.1,68.2,14.9,68.2,13.3z M72.4,10.1c-0.7,0-1.2,0.2-1.5,0.5c-0.4,0.4-0.6,0.9-0.6,1.7h4 c0-0.8-0.2-1.4-0.5-1.7S73,10.1,72.4,10.1z" }),
+                      react.createElement("path", { fill:"#1FBAD6", d: "M80.2,8.7l0.1,1.7h0c0.3-0.6,0.7-1.1,1.1-1.4c0.4-0.3,1-0.5,1.6-0.5c0.4,0,0.7,0,1,0.1l-0.1,2 c-0.3-0.1-0.7-0.2-1-0.2c-0.7,0-1.3,0.3-1.7,0.8c-0.4,0.5-0.7,1.2-0.7,2.1V18h-2V8.7H80.2z" }),
+                      react.createElement("path", { fill:"#1FBAD6", d: "M83.8,17c0-0.8,0.4-1.2,1.2-1.2c0.8,0,1.2,0.4,1.2,1.2c0,0.8-0.4,1.1-1.2,1.1C84.2,18.2,83.8,17.8,83.8,17z" }),
+                      react.createElement("path", { fill:"#1FBAD6", d: "M88.5,18.7c0-0.8,0.4-1.4,1.2-1.8c-0.6-0.3-0.9-0.8-0.9-1.5c0-0.7,0.4-1.2,1.1-1.6c-0.3-0.3-0.6-0.6-0.7-0.9 c-0.2-0.4-0.2-0.8-0.2-1.3c0-1,0.3-1.8,0.9-2.3c0.6-0.5,1.6-0.8,2.8-0.8c0.5,0,1,0,1.4,0.1c0.4,0.1,0.8,0.2,1.1,0.4l2.4-0.2v1.5 h-1.5c0.2,0.4,0.2,0.8,0.2,1.3c0,1-0.3,1.7-0.9,2.2s-1.5,0.8-2.7,0.8c-0.7,0-1.2-0.1-1.6-0.2c-0.1,0.1-0.2,0.2-0.3,0.3 c-0.1,0.1-0.1,0.2-0.1,0.4c0,0.2,0.1,0.3,0.2,0.4c0.1,0.1,0.3,0.2,0.6,0.2l2.7,0.2c1,0.1,1.7,0.3,2.2,0.6c0.5,0.3,0.8,0.9,0.8,1.7 c0,0.6-0.2,1.1-0.5,1.5c-0.4,0.4-0.9,0.8-1.5,1c-0.7,0.2-1.5,0.4-2.4,0.4c-1.3,0-2.3-0.2-3-0.6C88.8,20.1,88.5,19.5,88.5,18.7z M95.1,18.4c0-0.3-0.1-0.5-0.3-0.7s-0.6-0.2-1.1-0.3l-2.7-0.3c-0.2,0.1-0.4,0.3-0.5,0.5c-0.1,0.2-0.2,0.4-0.2,0.6 c0,0.4,0.2,0.8,0.5,1c0.4,0.2,1,0.3,1.8,0.3C94.2,19.5,95.1,19.2,95.1,18.4z M94.3,11.5c0-0.6-0.1-1-0.4-1.2 c-0.3-0.2-0.7-0.3-1.3-0.3c-0.7,0-1.1,0.1-1.4,0.3c-0.3,0.2-0.4,0.6-0.4,1.2s0.1,1,0.4,1.2c0.3,0.2,0.7,0.3,1.4,0.3 c0.6,0,1.1-0.1,1.3-0.4S94.3,12,94.3,11.5z" }),
+                      react.createElement("path", { fill:"#1FBAD6", d: "M99.4,16V5l2-0.1v10.8c0,0.3,0.1,0.5,0.2,0.6c0.1,0.1,0.3,0.2,0.6,0.2c0.3,0,0.6,0,0.9-0.1V18 c-0.4,0.1-1,0.2-1.6,0.2c-0.8,0-1.3-0.2-1.7-0.5S99.4,16.8,99.4,16z" })
+                    )
+                  )
+                );
+              };
+
+            return function App() {
+              var rootElm = react.useRef(null);
+              var _useState = react.useState({
+                width: window.innerWidth,
+                height: window.innerHeight
+              });
+              var windowDimension = _useState[0];
+              var setDimension = _useState[1];
+              react.useEffect(function sideEffect(){
+                function handleResize() {
+                  setDimension({width: window.innerWidth, height: window.innerHeight});
+                };
+                window.addEventListener('resize', handleResize);
+                return function() {window.removeEventListener('resize', handleResize);};
+              }, []);
+              return react.createElement(
+                'div',
+                {style: {position: 'absolute', left: 0, width: '100vw', height: '100vh'}},
+                
+                react.createElement(keplerGl.KeplerGl, {
+                  mapboxApiAccessToken: mapboxToken,
+                  id: "map",
+                  width: windowDimension.width,
+                  height: windowDimension.height
+                })
+              )
+            }
+          }(React, KeplerGl, MAPBOX_TOKEN));
+
+          const app = (function createReactReduxProvider(react, reactRedux, KeplerElement) {
+            return react.createElement(
+              reactRedux.Provider,
+              {store},
+              react.createElement(KeplerElement, null)
+            )
+          }(React, ReactRedux, KeplerElement));
+          /** END COMPONENTS **/
+
+          /** Render **/
+          (function render(react, reactDOM, app) {
+            reactDOM.render(app, document.getElementById('app'));
+          }(React, ReactDOM, app));
+        </script>
+        <!-- The next script will show how to interact directly with Kepler map store -->
+        <script>
+          /**
+           * Customize map.
+           * In the following section you can use the store object to dispatch Kepler.gl actions
+           * to add new data and customize behavior
+           */
+          (function customize(keplerGl, store) {
+            const datasets = [{"version":"v1","data":{"id":"4lgrputw","label":"kepler_IONITY_min50.csv","color":[143,47,191],"allData":[["min","IONITY",50,0,0],["max","IONITY",350,0,0],["IONITY Eschweiler","IONITY",350,50.81731,6.21673],["IONITY Eschweiler Aachener Straße","IONITY",350,50.81767,6.21385],["IONITY Eschweiler","IONITY",120,50.81687,6.21574],["IONITY Eschweiler","IONITY",120,50.818,6.215],["IONITY Solingen Autobahnraststätte Ohligser Heide","IONITY",120,51.15748,6.9622],["IONITY Solingen Ohligser Weg","IONITY",350,51.15802,6.9617],["IONITY Solingen","IONITY",350,51.15681,6.9648],["IONITY Solingen Autobahnraststätte Ohligser Heide","IONITY",120,51.15716,6.96394],["IONITY Wermelskirchen Talsperre","IONITY",120,51.15785,7.22812],["IONITY Remscheid","IONITY",350,51.15841,7.23033],["IONITY Bad Honnef Gewerbepark Dachsberg","IONITY",120,50.64786,7.33437],["IONITY Bad Honnef Gewerbepark Dachsberg","IONITY",350,50.64762,7.33457],["IONITY Niederöfflingen Autobahntankstelle Eifel-Ost","IONITY",120,50.07019,6.88091],["IONITY Niederzissen Raststätte Brohltal West","IONITY",120,50.44146,7.22397],["IONITY Niederöfflingen","IONITY",350,50.07019,6.88091],["IONITY Niederzissen Raststätte Brohltal West","IONITY",120,50.44047,7.22563],["IONITY Niederzissen","IONITY",350,50.44047,7.22563],["IONITY Niederöfflingen Autobahntankstelle Eifel-West","IONITY",120,50.06849,6.88021],["IONITY Niederöfflingen","IONITY",350,50.06842,6.88021],["IONITY Niederzissen BAT Brohltal Ost","IONITY",350,50.44153,7.22399],["IONITY Bingen am Rhein","IONITY",350,49.92578,7.9368],["IONITY Bingen am Rhein","IONITY",120,49.92575,7.93673],["IONITY Bad Camberg","IONITY",350,50.30013,8.23455],["IONITY Herborn","IONITY",120,50.68891,8.29588],["IONITY Ehringshausen","IONITY",350,50.62033,8.36286],["IONITY Herborn","IONITY",350,50.68852,8.29592],["IONITY Ehringshausen","IONITY",120,50.62087,8.3624],["IONITY Grünberg","IONITY",120,50.62267,8.8964],["IONITY Grünberg","IONITY",350,50.62202,8.89727],["IONITY Grünberg","IONITY",350,50.62294,8.89485],["IONITY Grünberg","IONITY",120,50.62359,8.89497],["IONITY Staufenberg","IONITY",120,51.37039,9.6334],["IONITY Staufenberg Triftstraße","IONITY",350,51.37037,9.63367],["IONITY Kirchheim Industriestraße","IONITY",120,50.83376,9.57116],["IONITY Kirchheim Industriestraße","IONITY",350,50.83384,9.57078],["IONITY Eichenzell","IONITY",120,50.48835,9.70847],["IONITY Eichenzell","IONITY",350,50.48828,9.70854],["IONITY Rodgau","IONITY",350,50.05466,8.9082],["IONITY Weibersbrunn","IONITY",350,49.89831,9.39416],["IONITY Mahlberg","IONITY",350,48.3088,7.7916],["IONITY Mahlberg","IONITY",350,48.30952,7.78886],["IONITY Forst Autobahnraststätte Bruchsal West","IONITY",350,49.16125,8.56723],["IONITY Forst","IONITY",350,49.16269,8.57079],["IONITY Forst Autobahnraststätte Bruchsal Ost","IONITY",120,49.16269,8.57079],["IONITY Ilsfeld","IONITY",350,49.04533,9.26629],["IONITY Ilsfeld","IONITY",350,49.04428,9.26164],["IONITY Neuenstein Lohemerfeld","IONITY",350,49.20701,9.63927],["IONITY Neuenstein","IONITY",350,49.20538,9.6397],["IONITY Denkendorf Hoher Rain","IONITY",350,48.69367,9.3033],["IONITY Denkendorf","IONITY",120,48.69367,9.3033],["IONITY Gruibingen","IONITY",350,48.60532,9.63281],["IONITY Dietingen","IONITY",350,48.20593,8.62104],["IONITY Dietingen","IONITY",350,48.20622,8.62715],["IONITY Hamminkeln Weikenrott","IONITY",350,51.7391,6.59518],["IONITY Hamminkeln Weikenrott","IONITY",120,51.7391,6.59518],["IONITY Westenfeld","IONITY",90,51.47408,7.15143],["IONITY Westenfeld Dückerweg","IONITY",120,51.47474,7.15121],["IONITY Schwerte","IONITY",120,51.46721,7.59444],["IONITY Aplerbeck","IONITY",350,51.46838,7.59406],["IONITY Schwerte","IONITY",350,51.46775,7.59696],["IONITY Aplerbeck","IONITY",120,51.46881,7.59545],["IONITY Lippetal Strängenbach","IONITY",120,51.69578,7.96639],["IONITY Lippetal Strängenbach","IONITY",350,51.69584,7.96616],["IONITY Salzbergen Holsterfeld","IONITY",350,52.32615,7.43007],["IONITY Salzbergen","IONITY",120,52.32615,7.43007],["IONITY Holdorf","IONITY",350,52.53923,8.1146],["IONITY Holdorf","IONITY",350,52.54076,8.1127],["IONITY Holdorf","IONITY",120,52.54231,8.11311],["IONITY Holdorf Wahlder Straße","IONITY",120,52.53968,8.11471],["IONITY Tiste","IONITY",350,53.29909,9.53517],["IONITY Langwedel","IONITY",350,53.00061,9.17951],["IONITY Tiste Zur Autobahn","IONITY",350,53.29998,9.53256],["IONITY Langwedel","IONITY",350,52.99853,9.18121],["IONITY Auetal","IONITY",350,52.22698,9.23255],["IONITY Auetal","IONITY",350,52.2237,9.22147],["IONITY Auetal","IONITY",120,52.22661,9.2322],["IONITY Auetal","IONITY",120,52.22365,9.22208],["IONITY Seesen","IONITY",120,51.92729,10.14405],["IONITY Seesen","IONITY",350,51.92803,10.14173],["IONITY Seesen","IONITY",120,51.928,10.142],["IONITY Seesen","IONITY",350,51.92628,10.14324],["IONITY Lehrte E30","IONITY",120,52.38722,9.99938],["IONITY Lehrte BAB-Raststätte Lehrter See","IONITY",350,52.38876,9.99631],["IONITY Lehrte","IONITY",350,52.38643,9.99892],["IONITY Bispingen","IONITY",350,53.10939,9.98177],["IONITY Bispingen","IONITY",350,53.11004,9.98406],["IONITY Bispingen","IONITY",350,53.11004,9.98406],["IONITY Wolfsburg","IONITY",120,52.42487,10.74569],["IONITY Detmerode Detmeroder Markt","IONITY",120,52.39224,10.75371],["IONITY Detmerode Marignanestraße","IONITY",350,52.39224,10.75371],["IONITY Wolfsburg Braunschweiger Straße","IONITY",350,52.41666,10.78339],["IONITY Wolfsburg Major-Hirst-Straße","IONITY",350,52.42487,10.74569],["IONITY Wolfsburg","IONITY",120,52.4452,10.78523],["IONITY Wolfsburg Allerpark","IONITY",120,52.43771,10.80907],["IONITY Wolfsburg Allerpark","IONITY",350,52.43771,10.80907],["IONITY Wolfsburg Oebisfelder Straße","IONITY",350,52.4452,10.78523],["IONITY Sangerhausen","IONITY",350,51.45109,11.30512],["IONITY Hohe Börde Zum Raukler","IONITY",350,52.1739,11.49508],["IONITY Hohe Börde","IONITY",120,52.17393,11.49511],["IONITY Großenaspe Apothekerholz","IONITY",350,54.01422,9.93325],["IONITY Großenaspe","IONITY",120,54.01422,9.93327],["IONITY Neumünster","IONITY",120,54.0929,9.93064],["IONITY Neumünster","IONITY",350,54.09267,9.92914],["IONITY Todendorf","IONITY",350,53.69263,10.32044],["IONITY Todendorf","IONITY",120,53.6944,10.32474],["IONITY Todendorf Herbertweg","IONITY",350,53.69437,10.32463],["IONITY Völschow E251","IONITY",350,53.85567,13.33334],["IONITY Heiligengrabe Liebenthaler Dorfstraße","IONITY",350,53.14724,12.3987],["IONITY Heiligengrabe Liebenthaler Dorfstraße","IONITY",120,53.14724,12.3987],["IONITY Mittenwalde Am Fichtenplan","IONITY",350,52.31811,13.49481],["IONITY Mittenwalde Am Fichtenplan","IONITY",350,52.31552,13.49459],["IONITY Landsberg am Lech","IONITY",350,48.05927,10.84679],["IONITY Landsberg am Lech","IONITY",120,48.05958,10.84677],["IONITY Landsberg am Lech","IONITY",350,48.05833,10.84769],["IONITY Giengen an der Brenz","IONITY",350,48.58429,10.179],["IONITY Giengen an der Brenz","IONITY",350,48.58394,10.17555],["IONITY Ohrenbach","IONITY",120,49.48496,10.21115],["IONITY Ohrenbach","IONITY",120,49.48518,10.21362],["IONITY Ohrenbach","IONITY",350,49.48435,10.21198],["IONITY Ohrenbach","IONITY",350,49.48553,10.21335],["IONITY Aurach","IONITY",350,49.24101,10.35592],["IONITY Aurach BAB Frankenhöhe Nord","IONITY",350,49.24116,10.35612],["IONITY Aurach","IONITY",350,49.24283,10.35307],["IONITY Aurach Auf der Frankenhöhe","IONITY",350,49.24263,10.35294],["IONITY Stammham","IONITY",350,48.83744,11.4692],["IONITY Berg bei Neumarkt in der Oberpfalz Karl-Schiller-Straße","IONITY",350,49.31295,11.47475],["IONITY Berg bei Neumarkt in der Oberpfalz Ludwig-Erhard-Ring","IONITY",120,49.31295,11.47474],["IONITY Hepberg","IONITY",350,48.83658,11.47212],["IONITY Hepberg","IONITY",120,48.8366,11.47223],["IONITY Friedberg Winterbruckenweg","IONITY",350,48.40649,10.95206],["IONITY Hammerschmiede","IONITY",120,48.41205,10.91278],["IONITY Hammerschmiede","IONITY",350,48.41161,10.9149],["IONITY Friedberg Winterbruckenweg","IONITY",120,48.40643,10.95225],["IONITY Valley","IONITY",120,47.89164,11.73167],["IONITY Holzkirchen Schmiedstraße","IONITY",350,47.9065,11.71752],["IONITY Valley Fichtholz","IONITY",350,47.89221,11.73128],["IONITY Kleinlangheim","IONITY",350,49.77935,10.24649],["IONITY Hausen bei Würzburg","IONITY",350,49.94569,10.01674],["IONITY Hausen bei Würzburg","IONITY",350,49.94418,10.01996],["IONITY Kleinlangheim","IONITY",350,49.77935,10.24649],["IONITY Kleinlangheim","IONITY",350,49.78085,10.2448],["IONITY Hausen bei Würzburg","IONITY",120,49.94465,10.01653],["IONITY Schwabhausen An der B247","IONITY",350,50.89838,10.72563],["IONITY Geratal","IONITY",350,50.72646,10.84155],["IONITY Geratal","IONITY",350,50.72467,10.84708],["IONITY Schwabhausen","IONITY",120,50.89838,10.72563],["IONITY Himmelkron Bayreuther Straße","IONITY",350,50.05597,11.60915],["IONITY Wernberg-Köblitz","IONITY",120,49.53226,12.13503],["IONITY Wernberg-Köblitz Keplerstraße","IONITY",350,49.53236,12.13491],["IONITY Schmölln Schafweg","IONITY",350,50.8568,12.31317],["IONITY Schmölln","IONITY",350,50.86063,12.30802],["IONITY Bad Dürrenberg An der Autobahn","IONITY",350,51.29015,12.1376],["IONITY Wilsdruff","IONITY",350,51.06023,13.57196],["IONITY Wilsdruff","IONITY",350,51.06321,13.57107],["IONITY Rohrdorf","IONITY",350,47.8012,12.17698],["IONITY Pilsting","IONITY",120,48.6923,12.67358],["IONITY Pilsting Hietzinger Wiesen","IONITY",350,48.69197,12.67321],["IONITY Hunderdorf Stetten","IONITY",350,48.93184,12.70817],["IONITY Hunderdorf","IONITY",350,48.93104,12.70542],["IONITY Hunderdorf","IONITY",120,48.93149,12.70785],["IONITY Hunderdorf","IONITY",120,48.93137,12.70578],["IONITY Passau","IONITY",350,48.58806,13.36667],["IONITY Passau","IONITY",120,48.588,13.366],["IONITY Passau Reichsgrafenstraße","IONITY",120,48.59,13.366],["IONITY Passau Reichsgrafenstraße","IONITY",350,48.58942,13.36537]],"fields":[{"name":"name","type":"string","format":"","analyzerType":"STRING"},{"name":"network","type":"string","format":"","analyzerType":"STRING"},{"name":"ratedPowerkW","type":"integer","format":"","analyzerType":"INT"},{"name":"latitude","type":"real","format":"","analyzerType":"FLOAT"},{"name":"longitude","type":"real","format":"","analyzerType":"FLOAT"}]}}];
+            const config = {"version":"v1","config":{"visState":{"filters":[],"layers":[{"id":"youkdn","type":"point","config":{"dataId":"4lgrputw","label":"IONITY Charger","color":[255,203,153],"highlightColor":[252,242,26,255],"columns":{"lat":"latitude","lng":"longitude","altitude":null},"isVisible":true,"visConfig":{"radius":10,"fixedRadius":false,"opacity":0.8,"outline":false,"thickness":2,"strokeColor":null,"colorRange":{"name":"Global Warming","type":"sequential","category":"Uber","colors":["#5A1846","#900C3F","#C70039","#E3611C","#F1920E","#FFC300"]},"strokeColorRange":{"name":"Global Warming","type":"sequential","category":"Uber","colors":["#5A1846","#900C3F","#C70039","#E3611C","#F1920E","#FFC300"]},"radiusRange":[0,50],"filled":true},"hidden":false,"textLabel":[{"field":null,"color":[255,255,255],"size":18,"offset":[0,0],"anchor":"start","alignment":"center"}]},"visualChannels":{"colorField":{"name":"ratedPowerkW","type":"integer"},"colorScale":"quantile","strokeColorField":null,"strokeColorScale":"quantile","sizeField":null,"sizeScale":"linear"}}],"interactionConfig":{"tooltip":{"fieldsToShow":{"4lgrputw":[{"name":"name","format":null},{"name":"network","format":null},{"name":"ratedPowerkW","format":null}]},"compareMode":false,"compareType":"absolute","enabled":true},"brush":{"size":0.5,"enabled":false},"geocoder":{"enabled":false},"coordinate":{"enabled":false}},"layerBlending":"normal","splitMaps":[],"animationConfig":{"currentTime":null,"speed":1}},"mapState":{"bearing":0,"dragRotate":false,"latitude":51.21372885502361,"longitude":11.385018633156175,"pitch":0,"zoom":5.74029458458476,"isSplit":false},"mapStyle":{"styleType":"dark","topLayerGroups":{},"visibleLayerGroups":{"label":true,"road":true,"border":false,"building":true,"water":true,"land":true,"3d building":false},"threeDBuildingColor":[9.665468314072013,17.18305478057247,31.1442867897876],"mapStyles":{}}}};
+
+            const loadedData = keplerGl.KeplerGlSchema.load(
+              datasets,
+              config
+            );
+
+            store.dispatch(keplerGl.addDataToMap({
+              datasets: loadedData.datasets,
+              config: loadedData.config,
+              options: {
+                centerMap: false
+              }
+            }));
+          }(KeplerGl, store))
+        </script>
+      </body>
+    </html>
+  
