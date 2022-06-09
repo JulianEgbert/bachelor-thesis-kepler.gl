@@ -1,0 +1,9 @@
+{
+    "baseUrl": "https://raw.githubusercontent.com/JulianEgbert/bachelor-thesis-kepler.gl/",
+    "branch": "dev",
+    "files": [
+        {
+            "path": "files/testfile.html"
+        }
+    ]
+}
