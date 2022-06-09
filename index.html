@@ -1,22 +1,57 @@
 <!DOCTYPE html>
 <html>
 <body>
-    <input type="text" id="inputName"> <button onclick="loadFromInput()"> Load </button>
+    <select name="files" id="fileSelect" onchange="loadFromInput()">
+        <option> Please select a file to load </option>
+    </select>
+    <button onclick="loadFromInput()"> Load file </button>
 
     <iframe id="kepler.gl-content"> </iframe> 
 </body>
 
 <script>
+    const CONFIG_URL = "https://raw.githubusercontent.com/JulianEgbert/bachelor-thesis-kepler.gl/dev/config.json";
     const MAPBOX_TOKEN = 'pk.eyJ1IjoidWNmLW1hcGJveCIsImEiOiJjbDBiYzlveHgwdnF0M2NtZzUzZWZuNWZ4In0.l9J8ptz3MKwaU9I4PtCcig';
+    var config = "";
+
+    function loadConfig(configUrl = CONFIG_URL) {
+        fetch(configUrl).then(function (response) {
+            return response.json();
+        }).then(configLoaded);
+    }
+
+    function configLoaded(newConfig) {
+        config = newConfig;
+        const selectEl = document.getElementById("fileSelect");
+        config.files.forEach((file) => {
+            console.log(file);
+            const option = document.createElement("option");
+            option.value = file.path;
+            option.innerHTML = file.name;
+            selectEl.appendChild(option);
+        });
+        console.log(config);
+    }
+
+    loadConfig();
 
     function loadFromInput() {
-        const filename = document.getElementById("inputName").value;
+        const inputField = document.getElementById("fileSelect");
+        if (inputField.disabled) {
+            return;
+        }
+        const filename = inputField.value;
         try {
-            loadKeplerFromUrl(filename);
+            loadKeplerFromFilepath(filename);
         } catch (e) {
             console.error(e);
         }
         console.log(filename);
+    }
+
+    function loadKeplerFromFilepath(filepath) {
+        const url = `${config.baseUrl}${config.branch}/${filepath}`;
+        loadKeplerFromUrl(url);
     }
 
     function loadKeplerFromUrl(url) {

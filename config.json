@@ -3,7 +3,8 @@
     "branch": "dev",
     "files": [
         {
-            "path": "files/testfile.html"
+            "path": "files/testfile.html",
+            "name": "Testfile"
         }
     ]
 }
