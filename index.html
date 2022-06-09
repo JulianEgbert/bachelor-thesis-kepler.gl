@@ -1,12 +1,41 @@
 <!DOCTYPE html>
 <html>
-<body>
-    <select name="files" id="fileSelect" onchange="loadFromInput()">
-        <option> Please select a file to load </option>
-    </select>
-    <button onclick="loadFromInput()"> Load file </button>
+    <head>
+    <title>kepler.gl Visualization</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
 
-    <iframe id="kepler.gl-content"> </iframe> 
+        .box {
+            display: flex;
+            flex-flow: column;
+            height: 100%;
+        }
+
+        iframe.content {
+            border-style: none;
+            flex: 1 1 auto;
+        }
+
+        .header {
+            padding: 15px 15px;
+            flex: 0 1 auto;
+            background-color: rgb(41, 50, 60);
+        }
+    </style>
+    </head>
+<body>
+    <div class="box">
+        <div id="headerContent" class="row header">
+            <select name="files" id="fileSelect" onchange="loadFromInput()">
+                <option> Please select a file to load </option>
+            </select>
+            <button onclick="loadFromInput()"> Load file </button>
+        </div>
+        <iframe id="kepler.gl-content" class="row content"> </iframe>
+    </div>
 </body>
 
 <script>
@@ -69,21 +98,3 @@
     }
 </script>
 </html>
-
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-    }
-
-    iframe {
-        /* border: 0px; */
-        position: fixed;
-        left: 0px;
-        bottom: 0px;
-        width: 100vw;
-        height: calc(100vh - 100px);
-        border-width: 2px 0px 0px 0px;
-        border-color: red;
-    }
-</style>
