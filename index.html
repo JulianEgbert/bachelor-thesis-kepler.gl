@@ -3,9 +3,15 @@
     <head>
     <title>kepler.gl Visualization</title>
     <style>
+        :root{
+            --headerColor: rgb(41, 50, 60);
+            --backgroundColor: rgb(36, 39, 48);
+        }
+
         html, body {
             height: 100%;
             margin: 0;
+            background-color: var(--backgroundColor);
         }
 
         .box {
@@ -17,12 +23,13 @@
         iframe.content {
             border-style: none;
             flex: 1 1 auto;
+            background-color: var(--backgroundColor);
         }
 
         .header {
             padding: 15px 15px;
             flex: 0 1 auto;
-            background-color: rgb(41, 50, 60);
+            background-color: var(--headerColor);
         }
     </style>
     </head>
