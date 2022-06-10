@@ -47,7 +47,6 @@
 
 <script>
     const CONFIG_URL = "https://raw.githubusercontent.com/JulianEgbert/bachelor-thesis-kepler.gl/dev/config.json";
-    const MAPBOX_TOKEN = 'pk.eyJ1IjoidWNmLW1hcGJveCIsImEiOiJjbDBiYzlveHgwdnF0M2NtZzUzZWZuNWZ4In0.l9J8ptz3MKwaU9I4PtCcig';
     var config = "";
 
     function loadConfig(configUrl = CONFIG_URL) {
@@ -100,7 +99,11 @@
 
     function parseHTML(html) {
         // Inject a valid MAPBOX_TOKEN here.
-        html = html.replaceAll("const MAPBOX_TOKEN = 'PROVIDE_MAPBOX_TOKEN';", `const MAPBOX_TOKEN = '${MAPBOX_TOKEN}';`);
+        if (!config || !config.mapboxToken) {
+            window.alert("No mapbox token provided in config file.");
+            return html;
+        }
+        html = html.replaceAll("const MAPBOX_TOKEN = 'PROVIDE_MAPBOX_TOKEN';", `const MAPBOX_TOKEN = '${config.mapboxToken}';`);
         return html;
     }
 </script>

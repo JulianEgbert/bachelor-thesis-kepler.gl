@@ -1,5 +1,6 @@
 {
     "baseUrl": "https://raw.githubusercontent.com/JulianEgbert/bachelor-thesis-kepler.gl/",
+    "mapboxToken": "pk.eyJ1IjoidWNmLW1hcGJveCIsImEiOiJjbDBiYzlveHgwdnF0M2NtZzUzZWZuNWZ4In0.l9J8ptz3MKwaU9I4PtCcig",
     "branch": "dev",
     "files": [
         {
