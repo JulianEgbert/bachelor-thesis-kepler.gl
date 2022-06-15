@@ -59,7 +59,6 @@
         config = newConfig;
         const selectEl = document.getElementById("fileSelect");
         config.files.forEach((file) => {
-            console.log(file);
             const option = document.createElement("option");
             option.value = file.path;
             option.innerHTML = file.name;
@@ -81,7 +80,6 @@
         } catch (e) {
             console.error(e);
         }
-        console.log(filename);
     }
 
     function loadKeplerFromFilepath(filepath) {
