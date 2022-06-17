@@ -56,6 +56,6 @@ function parseHTML(html) {
         window.alert("No mapbox token provided in config file.");
         return html;
     }
-    html = html.replaceAll("const MAPBOX_TOKEN = 'PROVIDE_MAPBOX_TOKEN';", `const MAPBOX_TOKEN = '${config.mapboxToken}';`);
+    html = html.replace("'PROVIDE_MAPBOX_TOKEN'", `'${config.mapboxToken}'`);
     return html;
 }

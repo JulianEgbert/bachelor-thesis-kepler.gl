@@ -6,6 +6,10 @@
         {
             "path": "files/testfile.html",
             "name": "Testfile"
+        },
+        {
+            "path": "files/Charging Stations.html",
+            "name": "Charging Stations"
         }
     ]
 }
