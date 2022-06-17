@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <title>kepler.gl Visualization</title>
+    <link rel="stylesheet" href="style.css">
+    </head>
+<body>
+    <div class="box">
+        <div id="headerContent" class="row header">
+            <select name="files" id="fileSelect" onchange="loadFromInput()">
+                <option value=""> Please select a file to load </option>
+            </select>
+            <!-- <button onclick="loadFromInput()"> Load file </button> -->
+            <a href="https://github.com/JulianEgbert/bachelor-thesis-kepler.gl" id="GitHubReference" target="_blank"> GitHub </a>
+        </div>
+        <iframe id="kepler.gl-content" class="row content"> </iframe>
+    </div>
+</body>
+
+<script src="script.js">
+</script>
+</html>

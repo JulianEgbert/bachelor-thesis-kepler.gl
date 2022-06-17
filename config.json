@@ -1,0 +1,15 @@
+{
+    "baseUrl": "https://raw.githubusercontent.com/JulianEgbert/bachelor-thesis-kepler.gl/",
+    "mapboxToken": "pk.eyJ1IjoianVsaWFuZWdiZXJ0IiwiYSI6ImNsNGZvZzR6YjAwOHYzZG5kMTk3c3ZtdGMifQ.aSzV8xgpvVV_kymxoBrK-A",
+    "branch": "main",
+    "files": [
+        {
+            "path": "files/testfile.html",
+            "name": "Testfile"
+        },
+        {
+            "path": "files/Charging Stations.html",
+            "name": "Charging Stations"
+        }
+    ]
+}

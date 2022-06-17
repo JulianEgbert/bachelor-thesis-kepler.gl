@@ -1,0 +1,53 @@
+:root{
+    --headerColor: rgb(41, 50, 60);
+    --backgroundColor: rgb(36, 39, 48);
+    --elementColor: rgb(106, 116, 133);
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    background-color: var(--backgroundColor);
+}
+
+.box {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+}
+
+iframe.content {
+    border-style: none;
+    flex: 1 1 auto;
+    background-color: var(--backgroundColor);
+}
+
+.header {
+    padding: 15px 15px;
+    flex: 0 1 auto;
+    background-color: var(--headerColor);
+}
+
+button, select {
+    background-color: var(--elementColor);
+    border-width: 0;
+    color: white;
+    cursor: pointer;
+    padding: 10px;
+    margin-right: 10px;
+    font-size: 20px;
+    border-radius: 4px;
+}
+
+button:hover, select:hover {
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+  transition-duration: 0.5s;
+}
+
+#GitHubReference {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    margin: 3px;
+    color: lightgray;
+}
