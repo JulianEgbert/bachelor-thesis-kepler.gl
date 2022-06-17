@@ -1,4 +1,4 @@
-const CONFIG_URL = "https://raw.githubusercontent.com/JulianEgbert/bachelor-thesis-kepler.gl/dev/config.json";
+const CONFIG_URL = "https://raw.githubusercontent.com/JulianEgbert/bachelor-thesis-kepler.gl/main/config.json";
 var config = "";
 var loadedFilename = "";
 
