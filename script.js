@@ -53,6 +53,7 @@ function displayLoading() {
 }
 
 function loadKeplerFromUrl(url) {
+    displayLoading();
     fetch(url).then(function (response) {
         return response.text();
     }).then(function (html) {
