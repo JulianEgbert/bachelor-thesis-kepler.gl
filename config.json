@@ -4,12 +4,24 @@
     "branch": "main",
     "files": [
         {
-            "path": "files/testfile.html",
-            "name": "Testfile"
-        },
-        {
             "path": "files/Charging Stations.html",
             "name": "Charging Stations"
+        },
+        {
+            "path": "files/TeslaModel3_ChargingMap.html",
+            "name": "Charging Map - Tesla Model 3 LR"
+        },
+        {
+            "path": "files/VolkswagenID4_ChargingMap.html",
+            "name": "Charging Map - Volkswagen ID.4"
+        },
+        {
+            "path": "files/Fiat500_ChargingMap.html",
+            "name": "Charging Map - Fiat 500"
+        },
+        {
+            "path": "files/RenaultZoe_ChargingMap.html",
+            "name": "Charging Map - Renault Zoe"
         }
     ]
 }
