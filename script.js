@@ -1,11 +1,17 @@
-const CONFIG_URL = "https://raw.githubusercontent.com/JulianEgbert/bachelor-thesis-kepler.gl/main/config.json";
+const BASE_URL = "https://raw.githubusercontent.com/JulianEgbert/bachelor-thesis-kepler.gl";
 var config = "";
 var loadedFilename = "";
+var loadingHTML = "<h1> Loading </h1>";
 
-function loadConfig(configUrl = CONFIG_URL) {
-    fetch(configUrl).then(function (response) {
+function loadConfig() {
+    fetch(`${BASE_URL}/main/config.json`).then(function (response) {
         return response.json();
     }).then(configLoaded);
+    fetch(`${BASE_URL}/main/loading.html`).then(function (response) {
+        return response.text();
+    }).then(function (html) {
+        loadingHTML = html;
+    });
 }
 
 function configLoaded(newConfig) {
@@ -40,6 +46,10 @@ function loadFromInput() {
 function loadKeplerFromFilepath(filepath) {
     const url = `${config.baseUrl}${config.branch}/${filepath}`;
     loadKeplerFromUrl(url);
+}
+
+function displayLoading() {
+    document.getElementById("kepler.gl-content").srcdoc = loadingHTML;
 }
 
 function loadKeplerFromUrl(url) {
