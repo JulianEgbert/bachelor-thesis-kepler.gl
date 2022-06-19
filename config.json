@@ -22,6 +22,10 @@
         {
             "path": "files/RenaultZoe_ChargingMap.html",
             "name": "Charging Map - Renault Zoe"
+        },
+        {
+            "path": "files/Experiment Results.html",
+            "name": "Experiment Results"
         }
     ]
 }
