@@ -4,6 +4,7 @@
     <title>kepler.gl Visualization</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     </head>
 <body>
     <div class="box">
@@ -11,7 +12,7 @@
             <select name="files" id="fileSelect" onchange="loadFromInput()">
                 <option value=""> Please select a file to load </option>
             </select>
-            <a href="https://github.com/JulianEgbert/bachelor-thesis-kepler.gl" id="GitHubReference" target="_blank"> GitHub </a>
+            <a id="GitHubReference" href="https://github.com/JulianEgbert/bachelor-thesis-kepler.gl" target="_blank"><i class="fa fa-github"></i></a>
         </div>
         <iframe id="kepler.gl-content" class="row content"> </iframe>
     </div>

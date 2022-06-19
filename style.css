@@ -46,8 +46,9 @@ button:hover, select:hover {
 
 #GitHubReference {
     position: absolute;
-    top: 0px;
-    right: 0px;
+    right: 15px;
     margin: 3px;
     color: lightgray;
+    font-size: 36px;
+    cursor: pointer;
 }
