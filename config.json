@@ -26,6 +26,10 @@
         {
             "path": "files/Experiment Results.html",
             "name": "Experiment Results"
+        },
+        {
+            "path": "files/TeslaModel3_Combinations.html",
+            "name": "Combinations IONITY & Tesla - Tesla Model 3 LR"
         }
     ]
 }
