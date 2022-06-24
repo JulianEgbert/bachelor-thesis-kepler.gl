@@ -2,6 +2,24 @@ const BASE_URL = "https://raw.githubusercontent.com/JulianEgbert/bachelor-thesis
 var config = "";
 var loadedFilename = "";
 var loadingHTML = "<h1> Loading </h1>";
+const errorHTML = `<div class="error"> <a>&#10060;</a><p> An error has occured! <p> <p>Try again or load another file.</p></div><style>
+.error {
+  font-size: 120px;
+  width: 100%;
+  height: 200px;
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  margin-top: -100px;
+  user-select: none;
+}.error a {
+  text-shadow: 0 0 3px rgb(41, 50, 60);
+}.error p {
+  color: white;
+  font-size: 3rem;
+  margin: 5px;
+}</style>`;
 
 function loadConfig() {
     fetch(`${BASE_URL}/main/config.json`).then(function (response) {
@@ -35,12 +53,9 @@ function loadFromInput() {
     const filename = inputField.value;
     if (filename == loadedFilename)
         return;
-    try {
-        loadKeplerFromFilepath(filename);
-        loadedFilename = filename;
-    } catch (e) {
-        console.error(e);
-    }
+    
+    loadKeplerFromFilepath(filename);
+    loadedFilename = filename;
 }
 
 function loadKeplerFromFilepath(filepath) {
@@ -52,12 +67,26 @@ function displayLoading() {
     document.getElementById("kepler.gl-content").srcdoc = loadingHTML;
 }
 
+function displayLoadingError() {
+    const iframe = document.getElementById("kepler.gl-content");
+    iframe.srcdoc = errorHTML;
+}
+
+function handleFetchErrors(response) {
+    if (!response.ok) {
+        loadedFilename = "";
+        displayLoadingError();
+        throw Error(response);
+    }
+    return response;
+}
+
 function loadKeplerFromUrl(url) {
     displayLoading();
-    fetch(url).then(function (response) {
-        return response.text();
-    }).then(function (html) {
+    fetch(url).then(handleFetchErrors).then(response => response.text()).then(function (html) {
         document.getElementById("kepler.gl-content").srcdoc = parseHTML(html);
+    }).catch(function (e) {
+        console.error("An error occured while fetching the requested file.");
     });
 }
 
