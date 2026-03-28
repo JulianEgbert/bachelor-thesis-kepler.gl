@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> The token that was used for this project has expired so the website is no longer available. However, the project can still be viewed locally with a personal token.
+
 # bachelor-thesis-kepler.gl
 
 This repository provides a webpage that can dynamically load the visualizations from kepler.gl. It also injects a valid mapbox key into the HTML files which is why they don't work on their own.
